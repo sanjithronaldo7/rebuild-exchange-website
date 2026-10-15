@@ -1,0 +1,6 @@
+{
+  "name": "ReBuild Exchange",
+  "description": "Construction Material Leftover Exchange Marketplace connecting builders and buyers to pass useful surplus to new projects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

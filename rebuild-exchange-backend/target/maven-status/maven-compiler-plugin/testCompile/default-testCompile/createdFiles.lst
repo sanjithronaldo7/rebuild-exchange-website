@@ -1,0 +1,4 @@
+com\rebuildexchange\PurchaseRequestServiceTest.class
+com\rebuildexchange\OrderPaymentAndFeedbackTest.class
+com\rebuildexchange\MaterialAndCategoryControllerTest.class
+com\rebuildexchange\AuthControllerTest.class

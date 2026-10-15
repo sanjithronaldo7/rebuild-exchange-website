@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f7f6f0">
+  <title>Sign in — ReBuild Exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2"><link rel="stylesheet" href="login.css"><link rel="stylesheet" href="chatbot.css">
+</head>
+<body class="login-page">
+  <header class="login-top"><a class="brand" href="index.html" aria-label="ReBuild Exchange home"><span class="brand-mark">↗</span><span>rebuild<span class="brand-light">exchange</span></span></a><a class="back-link" href="index.html">← <span>Back to marketplace</span></a></header>
+  <main class="login-main">
+    <section class="login-visual" aria-label="Our community impact"><div class="visual-image"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85" alt="Light-filled home built with care"><div class="visual-shade"></div><div class="visual-quote"><span class="quote-mark">“</span><p>Good materials deserve<br>good stories after us.</p><span class="quote-caption">BUILD CIRCULAR. BUILD BETTER.</span></div></div><div class="visual-stat"><span class="stat-flower">✳</span><div><b>86.4 tonnes</b><small>of material kept in use by our community</small></div><span class="stat-arrow">↗</span></div><div class="visual-note">Better building starts with what’s already here.</div></section>
+    <section class="login-panel"><div class="form-eyebrow"><span></span> YOUR REBUILD COMMUNITY</div><h1>Welcome <em>back.</em></h1><p class="login-subtitle">Sign in to pick up where your next project begins.</p>
+      <form id="loginForm" class="login-form" novalidate>
+        <label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+        <div class="password-label"><label for="password">Password</label><button type="button" class="forgot-link" id="forgotPassword">Forgot password?</button></div>
+        <div class="password-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required minlength="8"><button type="button" class="show-password" id="showPassword" aria-label="Show password">Show</button></div>
+        <label class="remember"><input type="checkbox" name="remember"> <span>Keep me signed in</span></label>
+        <button class="btn btn-green login-submit" type="submit">Sign in <span>→</span></button>
+        <p class="form-feedback" id="formFeedback" aria-live="polite"></p>
+      </form>
+      <div class="login-separator"><span></span><small>NEW TO REBUILD?</small><span></span></div>
+      <button class="btn btn-outline create-account" id="createAccount" type="button">Create an account <span>→</span></button>
+      <p class="terms-note">By continuing, you agree to our <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</p>
+      <a class="mobile-market" href="index.html">← Browse materials without signing in</a>
+    </section>
+  </main>
+  <footer class="login-footer"><span>© 2026 ReBuild Exchange</span><span>Give leftover construction materials a second life.</span><a href="mailto:hello@rebuild.exchange">Need help?</a></footer>
+  <section class="chat-widget" aria-label="ReBuild help chat"><div class="chat-panel" id="chatPanel" hidden><header class="chat-head"><span class="chat-avatar">✳</span><span><b>ReBuild helper</b><small><i></i> Here to help you reuse</small></span><button class="chat-close" type="button" aria-label="Close chat">×</button></header><div class="chat-messages" id="chatMessages" aria-live="polite"><div class="chat-message bot-message">Hi there! I can help with finding or listing materials and explain how this demo works.</div><div class="quick-prompts"><button type="button" data-prompt="How do I find materials?">Find materials</button><button type="button" data-prompt="How do I list materials?">List materials</button><button type="button" data-prompt="How do I sign in?">Sign-in help</button></div></div><form class="chat-form" id="chatForm"><input id="chatInput" aria-label="Type your message" placeholder="Ask a question…" autocomplete="off"><button type="submit" aria-label="Send message">↑</button></form></div><button class="chat-launch" type="button" aria-expanded="false" aria-controls="chatPanel"><span class="chat-launch-icon">✳</span><span class="chat-launch-text">Need a hand?</span><span class="chat-notice"></span></button></section>
+  <script>
+    const API_BASE = window.REBUILD_API_BASE || 'http://localhost:8080/api';
+    const passwordInput = document.querySelector('#password');
+    let creatingAccount = false;
+
+    document.querySelector('#showPassword').addEventListener('click', e => {
+      const show = passwordInput.type === 'password';
+      passwordInput.type = show ? 'text' : 'password';
+      e.currentTarget.textContent = show ? 'Hide' : 'Show';
+      e.currentTarget.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    });
+
+    document.querySelector('#forgotPassword').addEventListener('click', () => {
+      const email = document.querySelector('#email').value;
+      if (!email) {
+        document.querySelector('#formFeedback').textContent = 'Please enter your email address to reset password.';
+        return;
+      }
+      document.querySelector('#formFeedback').textContent = 'Password reset instructions sent to ' + email;
+    });
+
+    document.querySelector('#createAccount').addEventListener('click', e => {
+      creatingAccount = !creatingAccount;
+      document.querySelector('.login-panel h1').innerHTML = creatingAccount ? 'Join our <em>community.</em>' : 'Welcome <em>back.</em>';
+      document.querySelector('.login-subtitle').textContent = creatingAccount ? 'Create an account to connect with your local building community.' : 'Sign in to pick up where your next project begins.';
+
+      document.querySelector('#nameLabel')?.remove();
+      document.querySelector('#fullName')?.remove();
+      document.querySelector('#roleLabel')?.remove();
+      document.querySelector('#roleSelect')?.remove();
+
+      if (creatingAccount) {
+        document.querySelector('#email').insertAdjacentHTML('beforebegin', `
+          <label id="nameLabel" for="fullName">Your name</label>
+          <input id="fullName" name="name" autocomplete="name" placeholder="Full name" required>
+          <label id="roleLabel" for="roleSelect" style="margin-top:6px;font-size:10px;font-weight:600;color:#475148;">I want to</label>
+          <select id="roleSelect" name="role" style="height:45px;width:100%;border:1px solid #dfe2d8;background:#fff;border-radius:6px;padding:0 12px;font-size:11px;outline:none;color:#29332b;margin-bottom:8px;">
+            <option value="ROLE_BUYER">Buy / Collect surplus materials</option>
+            <option value="ROLE_SELLER">List / Share surplus construction materials</option>
+          </select>
+        `);
+      }
+
+      e.currentTarget.innerHTML = creatingAccount ? 'Back to sign in <span>→</span>' : 'Create an account <span>→</span>';
+      document.querySelector('.login-separator small').textContent = creatingAccount ? 'ALREADY A MEMBER?' : 'NEW TO REBUILD';
+      document.querySelector('.login-submit').innerHTML = creatingAccount ? 'Create account <span>→</span>' : 'Sign in <span>→</span>';
+      document.querySelector('#formFeedback').textContent = '';
+    });
+
+    document.querySelector('#loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      if (!form.reportValidity()) return;
+
+      const email = document.querySelector('#email').value.trim();
+      const password = document.querySelector('#password').value;
+      const feedback = document.querySelector('#formFeedback');
+      feedback.style.color = '#a65748';
+      feedback.textContent = 'Connecting...';
+
+      if (creatingAccount) {
+        const fullName = document.querySelector('#fullName')?.value.trim();
+        const role = document.querySelector('#roleSelect')?.value || 'ROLE_BUYER';
+
+        try {
+          const res = await fetch(`${API_BASE}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, password, role })
+          });
+          const json = await res.json();
+
+          if (res.ok) {
+            feedback.style.color = '#315b45';
+            feedback.textContent = 'Account created! Please enter the 6-digit OTP verification code.';
+
+            const otpCode = prompt('Enter the 6-digit OTP sent to ' + email + ' (check backend logs in local dev):');
+            if (otpCode) {
+              const vRes = await fetch(`${API_BASE}/auth/verify-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otpCode: otpCode.trim(), purpose: 'REGISTRATION' })
+              });
+              const vJson = await vRes.json();
+              if (vRes.ok && vJson.data && vJson.data.accessToken) {
+                localStorage.setItem('rebuild-token', vJson.data.accessToken);
+                localStorage.setItem('rebuild-user', JSON.stringify({
+                  id: vJson.data.userId,
+                  fullName: vJson.data.fullName,
+                  email: vJson.data.email,
+                  roles: vJson.data.roles
+                }));
+                feedback.textContent = 'Verified successfully! Redirecting to marketplace...';
+                setTimeout(() => window.location.href = 'index.html', 800);
+              } else {
+                feedback.style.color = '#a65748';
+                feedback.textContent = vJson.message || 'Invalid or expired OTP code.';
+              }
+            }
+          } else {
+            feedback.textContent = json.message || 'Registration failed. Please check inputs.';
+          }
+        } catch (err) {
+          feedback.textContent = 'Backend is unreachable at ' + API_BASE + '. Please start the Spring Boot server.';
+        }
+      } else {
+        // Sign-in mode
+        try {
+          const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const json = await res.json();
+
+          if (res.ok && json.data && json.data.accessToken) {
+            localStorage.setItem('rebuild-token', json.data.accessToken);
+            localStorage.setItem('rebuild-user', JSON.stringify({
+              id: json.data.userId,
+              fullName: json.data.fullName,
+              email: json.data.email,
+              roles: json.data.roles
+            }));
+            feedback.style.color = '#315b45';
+            feedback.textContent = 'Sign-in successful! Redirecting...';
+            setTimeout(() => window.location.href = 'index.html', 600);
+          } else {
+            feedback.textContent = json.message || 'Invalid email or password.';
+          }
+        } catch (err) {
+          feedback.textContent = 'Backend is unreachable at ' + API_BASE + '. Please start the Spring Boot server on port 8080.';
+        }
+      }
+    });
+  </script>
+  <script src="chatbot.js"></script>
+</body>
+</html>
